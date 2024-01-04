@@ -1,7 +1,8 @@
 {
   "interval": 10000,
   "priceFilters": [
-    "40000-0"
+    "50000-0"
   ],
-  "name": "手办"
+  "name": [],
+  "categoryFilter": "2312"
 }

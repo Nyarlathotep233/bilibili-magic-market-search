@@ -36,9 +36,15 @@ const getList = async (name, fileName = "./list.json", params = {}) => {
   let list = data?.data?.data;
   console.log("list: ", list);
 
-  // 根据 name 过滤 list
-  if (name) {
-    list = list.filter((item) => item.c2cItemsName.includes(name));
+  // 根据 name 过滤 list，name 是个字符串数组，需要满足所有的 name
+  // 对于字母，不区分大小写
+  // name: ['a','b']
+  if (name?.length) {
+    list = list.filter(({ c2cItemsName }) => {
+      return name.every((item) => {
+        return c2cItemsName.toLowerCase().includes(item.toLowerCase());
+      });
+    });
   }
 
   // 把 list 写入文件,不要覆盖原来的内容
@@ -67,7 +73,7 @@ const getConfig = async () => {
 };
 
 const main = async () => {
-  const { interval, priceFilters, name } = await getConfig();
+  const { interval, priceFilters, name, categoryFilter } = await getConfig();
   console.log("interval: ", interval);
 
   // 如果 interval 小于 1000，就不执行
@@ -82,6 +88,7 @@ const main = async () => {
   // 在最开始的时候，先执行一次
   await getList(name, "./list.json", {
     priceFilters,
+    categoryFilter,
   });
   setInterval(async () => {
     await getList(name, "./list.json", {

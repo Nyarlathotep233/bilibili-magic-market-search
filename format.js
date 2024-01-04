@@ -1,5 +1,11 @@
 import fs from "fs/promises";
 
+const discount = 1;
+
+const discountFilter = (list, discount) => {
+  return list.filter((item) => item.discount <= discount);
+};
+
 // 判断文件是否存在
 try {
   await fs.access("./list.json");
@@ -10,7 +16,7 @@ try {
 // 为 list.json 里的数组做一下去重
 const listJSON = await fs.readFile("./list.json", "utf-8");
 const list = JSON.parse(listJSON);
-const newList = [];
+let newList = [];
 const newList2 = [];
 list.forEach((item) => {
   if (!newList2.includes(item.c2cItemsId)) {
@@ -28,6 +34,9 @@ newList.forEach((item) => {
 newList.forEach((item) => {
   item.discount = (item.price / (item.showMarketPrice * 100)).toFixed(2);
 });
+
+// 过滤掉折扣大于 discount 的商品
+newList = discountFilter(newList, discount);
 
 // 让 newList 按照 折扣 从小到大排序
 newList.sort((a, b) => a.discount - b.discount);
