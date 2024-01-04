@@ -1,8 +1,9 @@
 {
   "interval": 10000,
-  "priceFilters": [
-    "50000-0"
+  "priceFilters": [],
+  "name": [
+    "初音未来",
+    "毛绒玩偶"
   ],
-  "name": [],
-  "categoryFilter": "2312"
+  "categoryFilter": ""
 }
