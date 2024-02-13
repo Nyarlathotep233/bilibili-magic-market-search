@@ -32,7 +32,7 @@ newList.forEach((item) => {
 
 // 为每个商品计算折扣
 newList.forEach((item) => {
-  item.discount = (item.price / (item.showMarketPrice * 100)).toFixed(2);
+  item.discount = item.price / (item.showMarketPrice * 100);
 });
 
 // 过滤掉折扣大于 discount 的商品

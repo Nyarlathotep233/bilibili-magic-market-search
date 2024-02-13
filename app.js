@@ -5,7 +5,21 @@ import fetchList from "./node-fetch.js";
 // let nextId = null;
 // 把 nextId 存储到文件中
 
+let intervalInstance = null;
+
+const stopFetch = async () => {
+  await fs.writeFile("./nextId.txt", "empty");
+  // 停止定时器，这是最后一批数据
+  clearInterval(intervalInstance);
+  console.log(
+    "请求不到更多商品了,可以尝试删除 nextId.txt 文件，重新开始；或者修改 config.json 中的参数。"
+  );
+
+  console.log("----------------- fetch end ---------------------------");
+};
+
 const getList = async (name, fileName = "./list.json", params = {}) => {
+  console.log("----------------- new fetch ---------------------------");
   // 判断 nextId.txt 是否存在
   try {
     await fs.access("./nextId.txt");
@@ -15,11 +29,16 @@ const getList = async (name, fileName = "./list.json", params = {}) => {
   }
   // 读取 nextId，如果没有就是 null
   const nextId = (await fs.readFile("./nextId.txt", "utf-8")) || null;
-  console.log("nextId: ", nextId);
+
+  if (nextId === "empty") {
+    stopFetch();
+    return;
+  }
 
   // 获取数据
+  console.log("fetch nextId: ", nextId);
+  console.log("fetch params: ", params);
   const response = await fetchList({
-    categoryFilter: "2312",
     nextId,
     ...params,
   });
@@ -30,7 +49,12 @@ const getList = async (name, fileName = "./list.json", params = {}) => {
   const newNextId = data?.data?.nextId;
   console.log("newNextId: ", newNextId);
   // 把 newNextId 写入文件
-  await fs.writeFile("./nextId.txt", newNextId);
+  if (newNextId !== null) {
+    await fs.writeFile("./nextId.txt", newNextId);
+  } else {
+    stopFetch();
+    return;
+  }
 
   // 获取 list
   let list = data?.data?.data;
@@ -60,6 +84,8 @@ const getList = async (name, fileName = "./list.json", params = {}) => {
   const newListJson = [...oldListJson, ...list];
   await fs.writeFile(fileName, JSON.stringify(newListJson));
 
+  console.log("----------------- fetch end ---------------------------");
+
   return list;
 };
 
@@ -86,14 +112,14 @@ const main = async () => {
 
   // 每间隔一段时间执行一次,把数据写入 list.json
   // 在最开始的时候，先执行一次
-  await getList(name, "./list.json", {
+  const params = {
     priceFilters,
     categoryFilter,
-  });
-  setInterval(async () => {
-    await getList(name, "./list.json", {
-      priceFilters,
-    });
+  };
+
+  await getList(name, "./list.json", params);
+  intervalInstance = setInterval(async () => {
+    await getList(name, "./list.json", params);
   }, interval);
 };
 
