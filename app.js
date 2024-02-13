@@ -45,17 +45,6 @@ const getList = async (name, fileName = "./list.json", params = {}) => {
   const data = await response.json();
   console.log("data: ", data);
 
-  // 获取 newNextId
-  const newNextId = data?.data?.nextId;
-  console.log("newNextId: ", newNextId);
-  // 把 newNextId 写入文件
-  if (newNextId !== null) {
-    await fs.writeFile("./nextId.txt", newNextId);
-  } else {
-    stopFetch();
-    return;
-  }
-
   // 获取 list
   let list = data?.data?.data;
   console.log("list: ", list);
@@ -83,6 +72,17 @@ const getList = async (name, fileName = "./list.json", params = {}) => {
   const oldListJson = JSON.parse(oldList);
   const newListJson = [...oldListJson, ...list];
   await fs.writeFile(fileName, JSON.stringify(newListJson));
+
+  // 获取 newNextId
+  const newNextId = data?.data?.nextId;
+  console.log("newNextId: ", newNextId);
+  // 把 newNextId 写入文件
+  if (newNextId !== null) {
+    await fs.writeFile("./nextId.txt", newNextId);
+  } else {
+    stopFetch();
+    return;
+  }
 
   console.log("----------------- fetch end ---------------------------");
 
